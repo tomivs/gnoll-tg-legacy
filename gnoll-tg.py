@@ -108,3 +108,18 @@ while p.poll() is None:
                 # o si la transmisión no es en vivo y no es la misma canción que antes
                 elif datos['isLive'] != True and flood == False:
                     enviar('msg %s "📻SONANDO EN DIFERIDO:\\n🎶 %s\\n👤 %s\\n💿 %s\\n📃 %s"\n' % (recibido['to']['print_name'], datos['title'], datos['artist'], datos['album'], datos['license']['shortname'] if datos["license"] != "" else ""), p)
+            
+            elif recibido['text'] == '!cuantos':
+                # url de la API
+                req = urllib2.Request('http://radiognu.org/api?no_cover')
+                response = urllib2.urlopen(req)
+                html = response.read()
+                datos = json.loads(html)
+                # sacamos las frases de respuesta desde este archivo
+                archivo = open('cuantos.txt').readlines()
+                palabra = randint(0, len(archivo)-1)
+                nick = '@' + recibido['from']['username']
+                # sustituimos lo necesario
+                r = re.sub('____NICK____', nick, archivo[palabra])
+                r = re.sub('_X_', str(datos['listeners']), r)
+                enviar('msg %s %s' % (recibido['to']['print_name'], r), p)
